@@ -17,10 +17,9 @@ layout:
 
 # ☠️ Introduction
 
-**Marrow** is a lightweight library that focuses on two main goals:
+**Marrow is an open-source library built to turn your robot from a deterministic machine into an intelligent powerhouse.**
 
-1. **Automation** - allowing robots to act intelligently and respond to changing conditions on the field.
-2. **Developer tools** - making code easier to write, adjust, and maintain.
+With Marrow, instead of simply following pre-programmed instructions, your robot can react and adapt in real-time to what's happening on the field. Marrow also provides powerful developer tools that simplify setup, testing, and managing complex robot logic - so you can spend less time debugging and more time building intelligent behaviors.
 
 
 
