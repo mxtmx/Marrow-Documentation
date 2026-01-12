@@ -10,7 +10,7 @@ dependencies {
 }
 ```
 
-Replace `<VERSION>` with the latest version: [![Latest Release](https://img.shields.io/github/v/tag/Skeleton-Army/Marrow)](https://github.com/Skeleton-Army/Marrow/releases)
+Replace `<VERSION>` with the latest version (only the number): [![Latest Release](https://img.shields.io/github/v/tag/Skeleton-Army/Marrow)](https://github.com/Skeleton-Army/Marrow/releases)
 
 
 
