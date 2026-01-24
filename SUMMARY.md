@@ -10,6 +10,7 @@
 
 * [Spatial Awareness](concepts/spatial-awareness.md)
 * [Time Awareness](concepts/time-awareness.md)
+* [Phases](concepts/phases.md)
 * [Retries](concepts/retries.md)
 
 ## Automations
@@ -20,6 +21,7 @@
   * [CompositeZone](automations/zones/compositezone.md)
 * [TimerEx](automations/timerex.md)
 * [RetryCommand](automations/retrycommand.md)
+* [PhaseManager](automations/phasemanager.md)
 
 ## Dev Tools
 
