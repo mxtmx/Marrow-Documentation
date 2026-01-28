@@ -6,7 +6,7 @@ description: package com.skeletonarmy.marrow.phases
 
 ## Overview
 
-`PhaseManager` tracks the current phase of the match and provides time information. It allows you to define custom match phases and automatically transitions through them based on elapsed time.
+`PhaseManager` tracks the current phase of the match and provides time information. Create an instance with your custom match phases, and it automatically transitions through them based on elapsed time.
 
 Use `PhaseManager` to implement time-aware autonomous and teleop strategies. Register listeners to trigger different command groups when phases change, or query the current phase and remaining time to make dynamic decisions.
 
@@ -27,33 +27,37 @@ Phase parkPhase = new Phase("Park", 2);
 Phase phase = new Phase("Quick", 500, TimeUnit.MILLISECONDS);
 ```
 
-**Phase Equality**: Phases are compared **by name only**. Two phases with the same name are considered equal, even if they have different durations or time units. This affects both `equals()` and `hashCode()` behavior.
-
 ***
 
 ## Usage
 
 To use `PhaseManager`, you need to:
 
-1. **Initialize** it at the start of your OpMode with your phases:
+1. **Create an instance** in your OpMode's `init()` with your phases:
    ```java
    Phase autonomousPhase = new Phase("Autonomous", 28);
    Phase parkPhase = new Phase("Park", 2);
-   PhaseManager.init(this, autonomousPhase, parkPhase);
+   PhaseManager phaseManager = new PhaseManager(this, autonomousPhase, parkPhase);
    ```
 
 2. **Update** it once per loop iteration:
    ```java
-   PhaseManager.update();
+   phaseManager.update();
    ```
 
 3. **Query** the current phase and time as needed:
    ```java
-   if (PhaseManager.isCurrentPhase("Park")) {
+   // Check by phase reference
+   if (phaseManager.isCurrentPhase(parkPhase)) {
        driveToParking();
    }
    
-   if (PhaseManager.getTimeRemaining() < 5) {
+   // Or check by name
+   if (phaseManager.isCurrentPhase("Park")) {
+       driveToParking();
+   }
+   
+   if (phaseManager.getTimeRemaining() < 5) {
        // Do something with final seconds
    }
    ```
@@ -110,7 +114,13 @@ String str = phase.toString(); // "Endgame"
 Check which phase you're in:
 
 ```java
-if (PhaseManager.isCurrentPhase("Park")) {
+// Check by name
+if (phaseManager.isCurrentPhase("Park")) {
+    // Execute parking routine
+}
+
+// Check by phase reference
+if (phaseManager.isCurrentPhase(parkPhase)) {
     // Execute parking routine
 }
 ```
@@ -120,7 +130,7 @@ if (PhaseManager.isCurrentPhase("Park")) {
 Get the current phase object:
 
 ```java
-Phase current = PhaseManager.getCurrentPhase();
+Phase current = phaseManager.getCurrentPhase();
 ```
 
 **`getElapsedTime()`**
@@ -128,7 +138,7 @@ Phase current = PhaseManager.getCurrentPhase();
 Total elapsed time since match start (in seconds):
 
 ```java
-double elapsed = PhaseManager.getElapsedTime();
+double elapsed = phaseManager.getElapsedTime();
 ```
 
 **`getTimeRemaining()` / `getPhaseTimeRemaining()`**
@@ -136,8 +146,8 @@ double elapsed = PhaseManager.getElapsedTime();
 Time remaining in the match or current phase (in seconds):
 
 ```java
-double matchRemaining = PhaseManager.getTimeRemaining();
-double phaseRemaining = PhaseManager.getPhaseTimeRemaining();
+double matchRemaining = phaseManager.getTimeRemaining();
+double phaseRemaining = phaseManager.getPhaseTimeRemaining();
 ```
 
 **`getTotalMatchDuration()`**
@@ -145,7 +155,7 @@ double phaseRemaining = PhaseManager.getPhaseTimeRemaining();
 Total match duration (sum of all phase durations):
 
 ```java
-double total = PhaseManager.getTotalMatchDuration();
+double total = phaseManager.getTotalMatchDuration();
 ```
 
 **`addPhaseListener(PhaseListener)` / `removePhaseListener(PhaseListener)`**
@@ -153,14 +163,14 @@ double total = PhaseManager.getTotalMatchDuration();
 Listen to phase transitions. Register a `PhaseListener` that will be called whenever the robot enters a new phase:
 
 ```java
-PhaseManager.addPhaseListener(newPhase -> {
+phaseManager.addPhaseListener(newPhase -> {
     if (newPhase.getName().equals("Endgame")) {
         // ENTERING ENDGAME!
     }
 });
 
 // Remove specific listener
-PhaseManager.removePhaseListener(myListener);
+phaseManager.removePhaseListener(myListener);
 ```
 
 **`clearPhaseListeners()`**
@@ -168,7 +178,7 @@ PhaseManager.removePhaseListener(myListener);
 Remove all registered phase listeners at once:
 
 ```java
-PhaseManager.clearPhaseListeners();
+phaseManager.clearPhaseListeners();
 ```
 
 ***
@@ -178,14 +188,18 @@ PhaseManager.clearPhaseListeners();
 ```java
 @TeleOp
 public class MyTeleOp extends LinearOpMode {
+    private PhaseManager phaseManager;
+    private Phase teleopPhase;
+    private Phase endgamePhase;
+    
     @Override
     public void runOpMode() {
-        Phase teleopPhase = new Phase("Teleop", 100);
-        Phase endgamePhase = new Phase("Endgame", 20);
+        teleopPhase = new Phase("Teleop", 100);
+        endgamePhase = new Phase("Endgame", 20);
         
-        PhaseManager.init(this, teleopPhase, endgamePhase);
+        phaseManager = new PhaseManager(this, teleopPhase, endgamePhase);
         
-        PhaseManager.addPhaseListener(phase -> {
+        phaseManager.addPhaseListener(phase -> {
             if (phase.getName().equals("Endgame")) {
                 telemetry.addLine("ENTERING ENDGAME!");
             }
@@ -194,14 +208,14 @@ public class MyTeleOp extends LinearOpMode {
         waitForStart();
         
         while (opModeIsActive()) {
-            PhaseManager.update();
+            phaseManager.update();
             
-            if (PhaseManager.getTimeRemaining() < 5) {
+            if (phaseManager.getTimeRemaining() < 5) {
                 telemetry.addLine("FINAL 5 SECONDS");
             }
             
-            telemetry.addData("Phase", PhaseManager.getCurrentPhase().getName());
-            telemetry.addData("Time Remaining", String.format("%.1f", PhaseManager.getTimeRemaining()));
+            telemetry.addData("Phase", phaseManager.getCurrentPhase().getName());
+            telemetry.addData("Time Remaining", String.format("%.1f", phaseManager.getTimeRemaining()));
             telemetry.update();
         }
     }
@@ -212,9 +226,8 @@ public class MyTeleOp extends LinearOpMode {
 
 ## Notes
 
-- **Phase ordering matters**: Phases are transitioned in the order you provide to `init()`. Make sure your durations align with your actual match strategy.
+- **Phase ordering matters**: Phases are transitioned in the order you provide to the constructor. Make sure your durations align with your actual match strategy.
 - **Match start detection**: The timer starts when the robot state becomes `RUNNING` (i.e., when `waitForStart()` completes).
 - **Phase listeners are resilient**: Exceptions in phase listeners won't break your match. Errors are logged to telemetry.
-- **Phases are compared by name**: Two `Phase` objects are equal if they have the same name, regardless of duration or time unit. This means `equals()` and `hashCode()` are based on the phase name only.
-- **PhaseManager is stateful**: `PhaseManager` is a static manager. Don't instantiate it directly; call static methods instead.
+- **Instance-based design**: `PhaseManager` is an instance-based class. Create an instance using `new PhaseManager(opMode, phases...)` and call methods on that instance.
 - **Phases are transitioned in order**: The match progresses through phases sequentially. The last phase continues until the match ends, even if elapsed time exceeds its duration.

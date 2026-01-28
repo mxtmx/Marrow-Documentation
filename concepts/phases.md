@@ -29,6 +29,6 @@ Without phase awareness, your robot treats the entire match as one continuous pe
 
 To make this easier, Marrow provides [`PhaseManager`](../automations/phasemanager.md).
 
-Instead of manually tracking time and implementing phase logic yourself, [`PhaseManager`](../automations/phasemanager.md) automatically transitions your match through custom-defined phases and provides methods to query the current phase, remaining time, and phase transitions.
+Instead of manually tracking time and implementing phase logic yourself, you create a `PhaseManager` instance that automatically transitions your match through custom-defined phases and provides methods to query the current phase, remaining time, and phase transitions.
 
 For a full breakdown of how to use it in your own code, see the [`PhaseManager` reference page](../automations/phasemanager.md).
